@@ -1,8 +1,9 @@
-﻿User user = new User();
+﻿User user = new User("Ben Dover");
 string PokerType = "TexasHoldEm";
 
 //User is logging into system with username from frontend
-user.Login("Ben Dover");
+user.Login(user.Username);
+//user.Login("Mike Litoris");
 
 int roomId = 5;
 //User picks a game to join

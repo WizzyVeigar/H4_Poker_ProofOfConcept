@@ -1,10 +1,12 @@
-﻿internal class Server
+﻿using H4_Poker_ProofOfConcept.Poco;
+
+internal class Server
 {
     public Server()
     {
     }
 
-    List<PokerRoom> RoomList = new List<PokerRoom>() { new PokerRoom(), new PokerRoom() };
+    List<PokerTable> RoomList = new List<PokerTable>() { new PokerTable(new TexasHoldEmRules(), 1), new PokerTable(new TexasHoldEmRules(), 2) };
 
     //Api endpoint
     internal string Login(string userName)
@@ -14,23 +16,38 @@
 
     //Api endpoint
     //User wants to join the specific game
-    internal string JoinRoom(int hubId, User user)
+    internal string AddPlayerToRoom(int hubId, User user)
     {
-        PokerRoom room = FindRoomById(hubId);
-        SubscribeToRoomEvents(room, user);
+        PokerTable table = FindRoomById(hubId);
+        if (table == null)
+        {
+            return "Room not found";
+        }
+
+        if (table.RuleSet is TexasHoldEmRules)
+        {
+            if (table.Players.Count != table.RuleSet.MaximumPlayers)
+            {
+                Player<Card> player = new Player<Card>(user.Username);
+                table.Players.Add(player);
+                SubscribeToRoomEvents(table);
+            }
+            else
+                return "Room was Full";
+        }
+
         return "Granted";
     }
 
-    private PokerRoom FindRoomById(int hubId)
+    private PokerTable FindRoomById(int hubId)
     {
-        throw new NotImplementedException();
+        return RoomList.FirstOrDefault(room => room.RoomId == hubId);
     }
 
-    private bool SubscribeToRoomEvents(PokerRoom roomToJoin, User user)
+    private bool SubscribeToRoomEvents(PokerTable tableToJoin)
     {
-        roomToJoin.Players.Add(user);
-        roomToJoin.BroadCast += user.ReceiveMessage;
-
+        tableToJoin.BroadCast += tableToJoin.MessageHub.BroadCastMessage;
+        tableToJoin.MessagePlayerEvent += tableToJoin.MessageHub.SendMessageAwaitResponse;
         return true;
     }
 }

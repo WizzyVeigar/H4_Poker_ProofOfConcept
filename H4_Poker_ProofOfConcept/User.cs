@@ -1,11 +1,39 @@
-﻿internal class User
+﻿using H4_Poker_ProofOfConcept;
+
+internal class User
 {
-    public User()
+    public User(string uname)
     {
+        Username = uname;
+    }
+
+    private string username;
+
+    public string Username
+    {
+        get { return username; }
+        set { username = value; }
+    }
+
+    private string connId;
+
+    public string ConnId
+    {
+        get { return connId; }
+        set
+        {
+            if (string.IsNullOrEmpty(connId))
+            {
+                connId = value;
+            }
+        }
     }
 
 
+
+
     //Method for calling api and logging in
+    //This is not necessary in the real program, where you make a user object after calling the login endpoint for the first time
     internal void Login(string userName)
     {
         Server server = new Server();
@@ -21,23 +49,12 @@
     internal void JoinRoom(int pokerHubId)
     {
         Server server = new Server();
-        string response = server.JoinRoom(pokerHubId, this);
+        string response = server.AddPlayerToRoom(pokerHubId, this);
         string[] data = response.Split("body");
         if (data[1] == "good")
         {
             //Go to room with data from response
             //Redirect to room with data[0]
         }
-    }
-
-    internal string ReceiveMessage(string message)
-    {
-        HandleMessage(message);
-        return "Yes";
-    }
-
-    private void HandleMessage(string message)
-    {
-        throw new NotImplementedException();
     }
 }
