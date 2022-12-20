@@ -19,11 +19,13 @@ namespace H4_Poker_ProofOfConcept
         public async Task<string> SendMessageAwaitResponse<T>(Player<T> player, string message)
         {
             // Send the message to the client
-            await Clients.Client("INSERT_CONNECTIONID").SendAsync("ReceiveMessage", message);
+            await Clients.Client(player.Connection.ConnectionId)
+                .SendAsync("ReceiveMessage", message);
 
 
             // Wait for the response from the client
-            string response = await Clients.Client("INSERT_CONNECTIONID").SendAsync<string>("GetResponse");
+            string response = await Clients.Client(player.Connection.ConnectionId)
+                .SendAsync<string>("GetResponse");
 
             return response;
         }

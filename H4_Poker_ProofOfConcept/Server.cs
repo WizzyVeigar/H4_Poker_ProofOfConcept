@@ -24,7 +24,7 @@ internal class Server
         {
             return "Room not found";
         }
-
+        //Check for what type of game player is joining
         if (table.RuleSet is TexasHoldEmRules)
         {
             if (table.Players.Count != table.RuleSet.MaximumPlayers)

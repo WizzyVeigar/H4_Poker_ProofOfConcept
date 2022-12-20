@@ -13,9 +13,10 @@ namespace H4_Poker_ProofOfConcept.TexasHoldEm
 
         public PokerTable_Texas(IRules ruleSet, int roomId) : base(ruleSet, roomId)
         {
-
+            roleManager = new RoleManager(Players);
         }
 
+        RoleManager roleManager;
 
         protected override void RunGame()
         {
@@ -28,8 +29,23 @@ namespace H4_Poker_ProofOfConcept.TexasHoldEm
             while (GameOnGoing)
             {
                 //Move roles
-                RoleManager roleManager = new RoleManager(Players);
                 roleManager.MoveRoles();
+                //Notify users of what role they are
+                //Maybe put this in role manager?
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    switch (((Player_Texas)Players[i]).Role)
+                    {
+                        case Role.NONE:
+                            break;
+                        case Role.DEALER:
+                        case Role.BIG_BLIND:
+                        case Role.SMALL_BLIND:
+                            SendMessageToPlayerAwaitResponse(Players[i], $"You are {((Player_Texas)Players[i]).Role}");
+
+                            break;
+                    }
+                }
                 //Pay blinds
 
                 //Deal cards
@@ -38,10 +54,36 @@ namespace H4_Poker_ProofOfConcept.TexasHoldEm
                     hasRaised = false;
                     BettingRound();
                 } while (hasRaised);
+
                 //Deal 3 cards
+                do
+                {
+                    hasRaised = false;
+                    BettingRound();
+                } while (hasRaised);
+
                 //Deal 1 card
+                do
+                {
+                    hasRaised = false;
+                    BettingRound();
+                } while (hasRaised);
+
                 //Deal 1 card
+                do
+                {
+                    hasRaised = false;
+                    BettingRound();
+                } while (hasRaised);
+
                 //End round
+                do
+                {
+                    hasRaised = false;
+                    BettingRound();
+                } while (hasRaised);
+
+                DetermineWinner();
             }
         }
 
