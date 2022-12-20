@@ -9,11 +9,11 @@ namespace H4_Poker_ProofOfConcept.TexasHoldEm
 {
     public enum Role
     {
+        NONE,
         DEALER,
         BIG_BLIND,
         SMALL_BLIND
     };
-
 
     internal class Player_Texas : Player<Card>
     {

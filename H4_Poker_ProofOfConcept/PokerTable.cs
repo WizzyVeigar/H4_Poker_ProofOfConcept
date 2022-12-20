@@ -109,13 +109,7 @@ internal abstract class PokerTable
             }
             BroadCastMessage($"{user} has joined the table");
         }
-    }
-
-    protected abstract void RunGame();
-
-    
-
-
+    }   
     protected virtual void BroadCastMessage(string v)
     {
         BroadCast?.Invoke(v);
@@ -126,8 +120,10 @@ internal abstract class PokerTable
         MessagePlayerEvent?.Invoke(player, message);
     }
 
+    protected abstract void RunGame();
+
     protected virtual Player<Card> DetermineWinner()
     {
-
+        return Players[0];
     }
 }

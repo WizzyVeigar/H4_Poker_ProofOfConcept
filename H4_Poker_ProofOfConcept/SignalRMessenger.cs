@@ -12,8 +12,6 @@ namespace H4_Poker_ProofOfConcept
     //Class used to send and receive messages from the players on the assigned PokerTable
     internal class SignalRMessenger : Hub
     {
-        public SignalRMessenger() { }
-
         public void BroadCastMessage(string message)
         {
             Clients.All.BroadCast(message);

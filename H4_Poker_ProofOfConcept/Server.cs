@@ -1,14 +1,15 @@
 ﻿using H4_Poker_ProofOfConcept.Poco;
+using H4_Poker_ProofOfConcept.TexasHoldEm;
 
 internal class Server
 {
-    public Server()
-    {
-    }
-
-    List<PokerTable> RoomList = new List<PokerTable>() { new PokerTable(new TexasHoldEmRules(), 1), new PokerTable(new TexasHoldEmRules(), 2) };
+    /// <summary>
+    /// List of all tables
+    /// </summary>
+    List<PokerTable> Tables = new List<PokerTable>() { new PokerTable_Texas(new TexasHoldEmRules(), 1), new PokerTable_Texas(new TexasHoldEmRules(), 2) };
 
     //Api endpoint
+    //call a loginManager
     internal string Login(string userName)
     {
         return "good";
@@ -18,7 +19,7 @@ internal class Server
     //User wants to join the specific game
     internal string AddPlayerToRoom(int hubId, User user)
     {
-        PokerTable table = FindRoomById(hubId);
+        PokerTable table = FindTableById(hubId);
         if (table == null)
         {
             return "Room not found";
@@ -39,9 +40,9 @@ internal class Server
         return "Granted";
     }
 
-    private PokerTable FindRoomById(int hubId)
+    private PokerTable FindTableById(int hubId)
     {
-        return RoomList.FirstOrDefault(room => room.RoomId == hubId);
+        return Tables.FirstOrDefault(room => room.RoomId == hubId);
     }
 
     private bool SubscribeToRoomEvents(PokerTable tableToJoin)

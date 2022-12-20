@@ -44,6 +44,7 @@ namespace H4_Poker_ProofOfConcept.Poco
         public Player(string username)
         {
             Username = username;
+            cards= new List<T>();
         }
     }
 }

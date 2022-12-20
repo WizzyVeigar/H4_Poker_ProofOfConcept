@@ -15,19 +15,19 @@ internal class User
         set { username = value; }
     }
 
-    private string connId;
+    //private string connId;
 
-    public string ConnId
-    {
-        get { return connId; }
-        set
-        {
-            if (string.IsNullOrEmpty(connId))
-            {
-                connId = value;
-            }
-        }
-    }
+    //public string ConnId
+    //{
+    //    get { return connId; }
+    //    set
+    //    {
+    //        if (string.IsNullOrEmpty(connId))
+    //        {
+    //            connId = value;
+    //        }
+    //    }
+    //}
 
 
 
@@ -50,8 +50,8 @@ internal class User
     {
         Server server = new Server();
         string response = server.AddPlayerToRoom(pokerHubId, this);
-        string[] data = response.Split("body");
-        if (data[1] == "good")
+        //string[] data = response.Split("body");
+        if (response == "good")
         {
             //Go to room with data from response
             //Redirect to room with data[0]

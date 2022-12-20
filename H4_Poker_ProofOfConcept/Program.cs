@@ -1,5 +1,4 @@
 ﻿User user = new User("Ben Dover");
-string PokerType = "TexasHoldEm";
 
 //User is logging into system with username from frontend
 user.Login(user.Username);

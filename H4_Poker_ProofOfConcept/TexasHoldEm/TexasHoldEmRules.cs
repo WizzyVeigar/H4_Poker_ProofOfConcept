@@ -1,4 +1,4 @@
-﻿using H4_Poker_ProofOfConcept;
+﻿using H4_Poker_ProofOfConcept.TexasHoldEm;
 
 internal class TexasHoldEmRules : CommunityCardPokerRules
 {
