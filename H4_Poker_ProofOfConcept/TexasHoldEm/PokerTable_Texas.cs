@@ -3,20 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using H4_Poker_ProofOfConcept.Factories;
 using H4_Poker_ProofOfConcept.GameLogic;
+using H4_Poker_ProofOfConcept.Poco;
 
 namespace H4_Poker_ProofOfConcept.TexasHoldEm
 {
-    internal class PokerTable_Texas : PokerTable
+    internal class PokerTable_Texas : PokerTable, ITexasHoldEmRules
     {
         bool hasRaised = false;
+        int smallBlind = 5;
+        int bigBlind = 10;
+        CardDeckFactory deckFactory;
+        RoleManager roleManager;
+        PotManager potManager;
 
-        public PokerTable_Texas(IRules ruleSet, int roomId) : base(ruleSet, roomId)
+        public override int MinimumPlayers => 2;
+
+        public override int MaximumPlayers => 9;
+
+        public PokerTable_Texas(int roomId) : base(roomId)
         {
             roleManager = new RoleManager(Players);
+            deckFactory = new CardDeckFactory();
+            potManager = new PotManager();
+
+            //Subscribe to hub events
+            BroadCast += MessageHub.BroadCastMessage;
+            MessagePlayerResponseEvent += MessageHub.SendMessageAwaitResponse;
+            PlayerNoResponseEvent += MessageHub.SendMessage;
         }
 
-        RoleManager roleManager;
 
         protected override void RunGame()
         {
@@ -39,51 +56,46 @@ namespace H4_Poker_ProofOfConcept.TexasHoldEm
                         case Role.NONE:
                             break;
                         case Role.DEALER:
+                            break;
                         case Role.BIG_BLIND:
+                            potManager.AddToPot(Players[i], smallBlind);
+                            break;
                         case Role.SMALL_BLIND:
-                            SendMessageToPlayerAwaitResponse(Players[i], $"You are {((Player_Texas)Players[i]).Role}");
-
+                            potManager.AddToPot(Players[i], bigBlind);
                             break;
                     }
+                    if (((Player_Texas)Players[i]).Role > 0)
+                        SendMessageAwaitResponse(Players[i], $"You are {((Player_Texas)Players[i]).Role}");
                 }
+
                 //Pay blinds
 
                 //Deal cards
-                do
-                {
-                    hasRaised = false;
-                    BettingRound();
-                } while (hasRaised);
+                DealPlayers(2);
 
-                //Deal 3 cards
-                do
+                for (int i = 0; i < 5; i++)
                 {
-                    hasRaised = false;
-                    BettingRound();
-                } while (hasRaised);
+                    do
+                    {
+                        hasRaised = false;
+                        BettingRound();
+                    } while (hasRaised);
 
-                //Deal 1 card
-                do
-                {
-                    hasRaised = false;
-                    BettingRound();
-                } while (hasRaised);
-
-                //Deal 1 card
-                do
-                {
-                    hasRaised = false;
-                    BettingRound();
-                } while (hasRaised);
-
+                    if (i == 0)
+                    {
+                        //Deal 3 cards
+                        DealCommunity(3);
+                    }
+                    //only deal for 3 of the 5 betting rounds
+                    else if (i >= 1 && i < 4)
+                    {
+                        //Deal 1 card
+                        DealCommunity(1);
+                    }
+                }
                 //End round
-                do
-                {
-                    hasRaised = false;
-                    BettingRound();
-                } while (hasRaised);
-
                 DetermineWinner();
+
             }
         }
 
@@ -105,5 +117,28 @@ namespace H4_Poker_ProofOfConcept.TexasHoldEm
             }
         }
 
+        protected override void DealPlayers(int amountToDeal)
+        {
+            //Do this elsewhere
+            if (Deck.Count != 52)
+            {
+                Deck = deckFactory.CreateDeck();
+                Deck.Shuffle();
+            }
+
+            for (int j = 0; j < amountToDeal; j++)
+            {
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Players[i].Cards.Add(Deck.First());
+                    Deck.RemoveAt(0);
+                }
+            }
+        }
+
+        public void DealCommunity(int amountToDeal)
+        {
+
+        }
     }
 }

@@ -29,5 +29,12 @@ namespace H4_Poker_ProofOfConcept
 
             return response;
         }
+
+        public async void SendMessage<T>(Player<T> player, string message)
+        {
+            // Send the message to the client
+            await Clients.Client(player.Connection.ConnectionId)
+                .SendAsync("ReceiveMessage", message);
+        }
     }
 }

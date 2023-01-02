@@ -6,14 +6,15 @@ using Microsoft.VisualBasic.FileIO;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-internal abstract class PokerTable
+internal abstract class PokerTable : IRules
 {
     //Delegate for broadcasting to all players
     public delegate void BroadCastEvent(string messageToReturn);
 
     //Delegate for broadcasting to a specific player, and waiting for his response (Usually a turn move)
-    public delegate Task SendMessageAwaitResponseEvent(Player<Card> player, string message);
+    public delegate Task SendMessageAwaitResponseEvent<T>(Player<T> player, string message);
 
+    public delegate void SendMessageNoResponseEvent<T>(Player<T> player, string message);
     /// <summary>
     /// Event for broadcasting to all players
     /// </summary>
@@ -23,8 +24,9 @@ internal abstract class PokerTable
     /// <summary>
     /// Event for broadcasting to a specific player, and waiting for his response
     /// </summary>
-    public event SendMessageAwaitResponseEvent? MessagePlayerEvent;
+    public event SendMessageAwaitResponseEvent<Card>? MessagePlayerResponseEvent;
 
+    public event SendMessageNoResponseEvent<Card>? PlayerNoResponseEvent;
     /// <summary>
     /// Observable of players joining and leaving the room
     /// </summary>
@@ -53,6 +55,9 @@ internal abstract class PokerTable
         set { messageHub = value; }
     }
 
+    public abstract int MinimumPlayers { get; }
+    public abstract int MaximumPlayers { get; }
+
 
 
     /// <summary>
@@ -64,19 +69,20 @@ internal abstract class PokerTable
     /// This table's ruleset, which specifies what type of poker is at this table.
     /// DEBATE: Should this be changeable after initialization?
     /// </summary>
-    private IRules ruleSet;
-    public IRules RuleSet { get { return ruleSet; } private set { ruleSet = value; } }
+    /// Is this necessary? or should we just implement the rules on the subclass of pokertable?
+    //private IRules ruleSet;
+    //public IRules RuleSet { get { return ruleSet; } private set { ruleSet = value; } }
 
     /// <summary>
     /// An empty deck of cards, to hold playing cards. 
     /// This can always be of type <Card> since this is a poker table and you will always use normal playing cards
     /// </summary>
-    private List<Card> Deck = new List<Card>();
+    protected List<Card> Deck = new List<Card>();
 
-    public PokerTable(IRules ruleSet, int roomId)
+    public PokerTable(int roomId)
     {
         Players.CollectionChanged += Players_CollectionChanged;
-        this.RuleSet = ruleSet;
+        //this.RuleSet = ruleSet;
         RoomId = roomId;
         MessageHub = new SignalRMessenger();
     }
@@ -95,7 +101,7 @@ internal abstract class PokerTable
             {
                 case NotifyCollectionChangedAction.Add:
 
-                    if (!GameOnGoing && Players.Count >= RuleSet.MinimumPlayers)
+                    if (!GameOnGoing && Players.Count >= MinimumPlayers)
                     {
                         //this needs to start a new game
                         RunGame();
@@ -115,15 +121,22 @@ internal abstract class PokerTable
         BroadCast?.Invoke(v);
     }
 
-    protected virtual void SendMessageToPlayerAwaitResponse(Player<Card> player, string message)
+    protected virtual void SendMessageAwaitResponse(Player<Card> player, string message)
     {
-        MessagePlayerEvent?.Invoke(player, message);
+        MessagePlayerResponseEvent?.Invoke(player, message);
     }
 
+    protected virtual void SendMessageNoResponse(Player<Card> player, string message)
+    {
+        PlayerNoResponseEvent?.Invoke(player, message);
+    }
+
+    protected abstract void DealPlayers(int amountToDeal);
     protected abstract void RunGame();
 
     protected virtual Player<Card> DetermineWinner()
     {
         return Players[0];
     }
+
 }

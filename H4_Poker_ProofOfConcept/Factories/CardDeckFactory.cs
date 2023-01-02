@@ -8,7 +8,7 @@ namespace H4_Poker_ProofOfConcept.Factories
 {
     internal class CardDeckFactory : DeckFactory<Card>
     {
-        protected override List<Card> CreateDeck()
+        public override List<Card> CreateDeck()
         {
             List<Card> cards = new List<Card>();
 

@@ -8,8 +8,6 @@ namespace H4_Poker_ProofOfConcept.Factories
 {
     internal abstract class DeckFactory<T>
     {
-        protected DeckFactory() { }
-
-        protected abstract IList<T> CreateDeck();
+        public abstract IList<T> CreateDeck();
     }
 }
